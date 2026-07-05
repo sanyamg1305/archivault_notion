@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# team.archivault.in
 
-## Getting Started
+Internal tool for the Archivault team: a shared lead tracker, company wiki, and
+FAQ cheat-sheet for cold calls, plus a password-gated Founder Mode with
+per-rep commission tracking and private founder notes.
 
-First, run the development server:
+No individual logins — `/team/*` is open to anyone with the link, and
+`/founder/*` is gated by one shared passphrase.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS v4 + shadcn/ui (Base UI primitives)
+- PostgreSQL (hosted on Supabase) via Prisma 7
+
+## Local setup
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in real values, see below
+npx prisma migrate dev       # creates tables
+npm run db:seed              # seeds starter Wiki + FAQ content
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See [.env.example](.env.example). You need:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `DATABASE_URL` / `DIRECT_URL` — from Supabase: Project Settings > Database >
+  Connection string. Use the pooled ("Transaction", port 6543) string for
+  `DATABASE_URL` and the direct (port 5432) string for `DIRECT_URL`.
+- `FOUNDER_PASSPHRASE_HASH` — bcrypt hash of the Founder Mode passphrase.
+  Generate with `node -e "console.log(require('bcryptjs').hashSync('your-passphrase', 10))"`.
+  **In `.env*` files, escape every `$` as `\$`** (Next.js expands `$VAR` in env
+  files, which corrupts bcrypt hashes). Paste the raw, unescaped hash when
+  setting this in the Vercel dashboard instead.
+- `FOUNDER_SESSION_SECRET` — random secret for signing the founder-unlock
+  cookie. Generate with `openssl rand -base64 32`.
 
-## Learn More
+## Data model
 
-To learn more about Next.js, take a look at the following resources:
+Defined in [prisma/schema.prisma](prisma/schema.prisma):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `Lead` — shared lead list. `repName` is a free-text label (not an account)
+  so the founder tracker can total sales per person without any login.
+- `RepCommission` — per-rep commission type/rate, keyed by the same
+  free-text `repName`.
+- `FounderNote` — a single shared private notes doc, visible only in
+  Founder Mode.
+- `WikiPage`, `FaqItem` — company wiki and cold-call FAQ, editable by anyone
+  in `/team/*`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying to Vercel
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repo to GitHub and import it in Vercel.
+2. Set the environment variables above in the Vercel project settings
+   (Production + Preview).
+3. Point the `team.archivault.in` subdomain at Vercel with a CNAME record:
+   `team.archivault.in` → `cname.vercel-dns.com`
+   (Vercel will confirm the exact target when you add the domain in
+   Project Settings > Domains — use that value if it differs.)
+4. Run `npx prisma migrate deploy` (and `npm run db:seed` once) against the
+   production database before the first real visit.
