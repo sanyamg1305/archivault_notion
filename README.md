@@ -28,8 +28,11 @@ npm run dev
 See [.env.example](.env.example). You need:
 
 - `DATABASE_URL` / `DIRECT_URL` — from Supabase: Project Settings > Database >
-  Connection string. Use the pooled ("Transaction", port 6543) string for
-  `DATABASE_URL` and the direct (port 5432) string for `DIRECT_URL`.
+  Connect > Connection string. Use the pooled ("Transaction", port 6543)
+  string for `DATABASE_URL` and the direct (port 5432) string for
+  `DIRECT_URL`. This isn't optional on Vercel — Supabase's direct connection
+  host is IPv6-only, and Vercel's serverless functions are IPv4-only, so
+  `DATABASE_URL` must use the pooler or every request will fail to connect.
 - `FOUNDER_PASSPHRASE_HASH` — bcrypt hash of the Founder Mode passphrase.
   Generate with `node -e "console.log(require('bcryptjs').hashSync('your-passphrase', 10))"`.
   **In `.env*` files, escape every `$` as `\$`** (Next.js expands `$VAR` in env
