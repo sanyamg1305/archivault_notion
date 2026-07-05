@@ -1,18 +1,41 @@
 import { Users } from "lucide-react";
+import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { AddRepDialog } from "@/components/founder/add-rep-dialog";
 import { RepRow, type RepSummary } from "@/components/founder/rep-row";
+import { MonthFilter } from "@/components/founder/month-filter";
+import { SalesTrendChart } from "@/components/founder/sales-trend-chart";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { StatCard } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 
-export default async function TeamTrackerPage() {
+export default async function TeamTrackerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month } = await searchParams;
+
   const [reps, leads] = await Promise.all([
     prisma.repCommission.findMany({ orderBy: { repName: "asc" } }),
     prisma.lead.findMany({ where: { repName: { not: null } } }),
   ]);
+
+  let rangeStart: Date | null = null;
+  let rangeEnd: Date | null = null;
+  if (month) {
+    const parsed = new Date(`${month}-01T00:00:00`);
+    rangeStart = startOfMonth(parsed);
+    rangeEnd = endOfMonth(parsed);
+  }
+
+  const inRange = (date: Date | null) => {
+    if (!rangeStart || !rangeEnd) return true;
+    if (!date) return false;
+    return date >= rangeStart && date <= rangeEnd;
+  };
 
   const repByName = new Map(reps.map((r) => [r.repName, r]));
   const leadsByRep = new Map<string, typeof leads>();
@@ -29,7 +52,7 @@ export default async function TeamTrackerPage() {
     .map((repName) => {
       const config = repByName.get(repName);
       const repLeads = leadsByRep.get(repName) ?? [];
-      const sales = repLeads.filter((l) => l.isSale);
+      const sales = repLeads.filter((l) => l.isSale && inRange(l.saleConfirmedAt));
       const unpaid = sales.filter((l) => l.payoutStatus === "unpaid");
       const paid = sales.filter((l) => l.payoutStatus === "paid");
 
@@ -62,6 +85,17 @@ export default async function TeamTrackerPage() {
   const totalUnpaid = summaries.reduce((sum, r) => sum + r.unpaidAmount, 0);
   const totalPaid = summaries.reduce((sum, r) => sum + r.paidAmount, 0);
 
+  const now = new Date();
+  const chartData = Array.from({ length: 6 }, (_, i) => {
+    const d = subMonths(now, 5 - i);
+    const start = startOfMonth(d);
+    const end = endOfMonth(d);
+    const sales = leads.filter(
+      (l) => l.isSale && l.saleConfirmedAt && l.saleConfirmedAt >= start && l.saleConfirmedAt <= end
+    ).length;
+    return { month: format(d, "MMM"), sales };
+  });
+
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader
@@ -75,6 +109,13 @@ export default async function TeamTrackerPage() {
           <StatCard label="Total sales" value={totalSales.toString()} />
           <StatCard label="Unpaid commission" value={`₹${totalUnpaid.toLocaleString("en-IN")}`} />
           <StatCard label="Paid commission" value={`₹${totalPaid.toLocaleString("en-IN")}`} />
+        </div>
+
+        <SalesTrendChart data={chartData} />
+
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-foreground">By rep</h2>
+          <MonthFilter />
         </div>
 
         {summaries.length === 0 ? (

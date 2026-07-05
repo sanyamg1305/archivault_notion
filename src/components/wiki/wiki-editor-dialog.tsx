@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { unstable_rethrow } from "next/navigation";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,10 +38,11 @@ export function WikiEditorDialog({ page }: { page?: Page }) {
           await updateWikiPage(page.id, formData);
         }
       } catch (err) {
-        // redirect() throws internally on success — only report real errors
-        if (err instanceof Error && !err.message.includes("NEXT_REDIRECT")) {
-          toast.error(err.message);
-        }
+        // redirect() signals success by throwing internally — rethrow lets
+        // Next.js's own navigation handling take over; only real errors
+        // (validation, DB) fall through to the toast below.
+        unstable_rethrow(err);
+        toast.error(err instanceof Error ? err.message : "Something went wrong");
       }
     });
   }

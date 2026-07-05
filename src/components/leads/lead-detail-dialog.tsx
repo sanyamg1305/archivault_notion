@@ -96,7 +96,13 @@ export function LeadDetailDialog({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs text-muted-foreground">Phone</p>
-              <p>{lead.phone ?? "—"}</p>
+              {lead.phone ? (
+                <a href={`tel:${lead.phone}`} className="text-primary hover:underline">
+                  {lead.phone}
+                </a>
+              ) : (
+                <p>—</p>
+              )}
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Company</p>
