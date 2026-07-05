@@ -46,33 +46,33 @@ export function FaqList({ items }: { items: Item[] }) {
   }, [filtered]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search questions and answers…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-8"
+            className="bg-card pl-9"
           />
         </div>
         <FaqEditorDialog />
       </div>
 
       {grouped.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-2xl border border-dashed bg-card/50 p-10 text-center text-sm text-muted-foreground">
           No matching questions.
         </p>
       ) : (
         grouped.map(([category, categoryItems]) => (
           <div key={category}>
-            <h2 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+            <h2 className="mb-2.5 px-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               {category}
             </h2>
-            <Accordion className="rounded-xl border">
+            <Accordion className="overflow-hidden rounded-2xl border bg-card shadow-sm">
               {categoryItems.map((item) => (
-                <AccordionItem key={item.id} value={item.id} className="px-4">
+                <AccordionItem key={item.id} value={item.id} className="px-5">
                   <div className="flex items-center gap-2">
                     <AccordionTrigger className="flex-1 text-left text-sm font-medium">
                       {item.question}

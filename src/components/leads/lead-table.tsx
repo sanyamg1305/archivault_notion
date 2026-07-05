@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { Contact } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EmptyState } from "@/components/empty-state";
 import { StatusBadge, STATUS_LABEL } from "./status-badge";
 import { LeadDetailDialog, type LeadDetail } from "./lead-detail-dialog";
 import type { LeadStatus } from "@/generated/prisma/client";
@@ -30,10 +32,10 @@ export function LeadTable({
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
         <Select value={filter} onValueChange={(v) => v && setFilter(v as LeadStatus | "all")}>
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="w-44 bg-card">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -45,20 +47,22 @@ export function LeadTable({
             ))}
           </SelectContent>
         </Select>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {filtered.length} lead{filtered.length === 1 ? "" : "s"}
         </span>
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          No leads here yet.
-        </p>
+        <EmptyState
+          icon={<Contact className="size-5" />}
+          title="No leads here yet"
+          description="Add your first lead to get the tracker started."
+        />
       ) : (
-        <div className="overflow-hidden rounded-xl border">
+        <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
           {/* Desktop header */}
           <div
-            className={`hidden border-b bg-muted/40 px-4 py-2 text-xs font-medium uppercase text-muted-foreground md:grid md:gap-3 ${
+            className={`hidden border-b bg-muted/50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid md:gap-3 ${
               showRepColumn
                 ? "md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto]"
                 : "md:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
@@ -77,14 +81,14 @@ export function LeadTable({
               <li key={lead.id}>
                 <LeadDetailDialog lead={lead} repNames={repNames}>
                   <div
-                    className={`grid cursor-pointer grid-cols-1 gap-1.5 px-4 py-3 text-sm transition-colors hover:bg-muted/40 md:items-center md:gap-3 ${
+                    className={`grid cursor-pointer grid-cols-1 gap-1.5 px-5 py-4 text-sm transition-colors hover:bg-accent/40 md:items-center md:gap-3 ${
                       showRepColumn
                         ? "md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto]"
                         : "md:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
                     }`}
                   >
                     <div>
-                      <p className="font-medium">{lead.name}</p>
+                      <p className="font-medium text-foreground">{lead.name}</p>
                       <p className="text-xs text-muted-foreground md:hidden">
                         {lead.phone ?? "—"}
                       </p>

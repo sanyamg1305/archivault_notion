@@ -1,6 +1,10 @@
+import { Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AddRepDialog } from "@/components/founder/add-rep-dialog";
 import { RepRow, type RepSummary } from "@/components/founder/rep-row";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
+import { StatCard } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 
@@ -53,37 +57,48 @@ export default async function TeamTrackerPage() {
       };
     });
 
-  return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-4 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Team Tracker</h1>
-          <p className="text-sm text-muted-foreground">
-            Sales and commission across the whole team.
-          </p>
-        </div>
-        <AddRepDialog />
-      </div>
+  const totalLeads = summaries.reduce((sum, r) => sum + r.totalLeads, 0);
+  const totalSales = summaries.reduce((sum, r) => sum + r.totalSales, 0);
+  const totalUnpaid = summaries.reduce((sum, r) => sum + r.unpaidAmount, 0);
+  const totalPaid = summaries.reduce((sum, r) => sum + r.paidAmount, 0);
 
-      {summaries.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          No reps yet. Add one, or assign a rep name on a lead in the Leads tab.
-        </p>
-      ) : (
-        <div className="overflow-hidden rounded-xl border">
-          <div className="hidden border-b bg-muted/40 px-4 py-2 text-xs font-medium uppercase text-muted-foreground md:grid md:grid-cols-[1.3fr_0.7fr_0.7fr_1.6fr_1.3fr_auto] md:gap-3">
-            <span>Rep</span>
-            <span>Leads</span>
-            <span>Sales</span>
-            <span>Commission rate</span>
-            <span>Owed / Paid</span>
-            <span />
-          </div>
-          {summaries.map((rep) => (
-            <RepRow key={rep.repName} rep={rep} />
-          ))}
+  return (
+    <div className="flex flex-1 flex-col">
+      <PageHeader
+        title="Team Tracker"
+        description="Sales and commission across the whole team."
+        action={<AddRepDialog />}
+      />
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-8 md:px-10">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StatCard label="Total leads" value={totalLeads.toString()} />
+          <StatCard label="Total sales" value={totalSales.toString()} />
+          <StatCard label="Unpaid commission" value={`₹${totalUnpaid.toLocaleString("en-IN")}`} />
+          <StatCard label="Paid commission" value={`₹${totalPaid.toLocaleString("en-IN")}`} />
         </div>
-      )}
+
+        {summaries.length === 0 ? (
+          <EmptyState
+            icon={<Users className="size-5" />}
+            title="No reps yet"
+            description="Add one, or assign a rep name on a lead in the Leads tab."
+          />
+        ) : (
+          <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div className="hidden border-b bg-muted/50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid md:grid-cols-[1.3fr_0.7fr_0.7fr_1.6fr_1.3fr_auto] md:gap-3">
+              <span>Rep</span>
+              <span>Leads</span>
+              <span>Sales</span>
+              <span>Commission rate</span>
+              <span>Owed / Paid</span>
+              <span />
+            </div>
+            {summaries.map((rep) => (
+              <RepRow key={rep.repName} rep={rep} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

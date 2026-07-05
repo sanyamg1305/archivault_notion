@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { EmptyState } from "@/components/empty-state";
 import { WikiEditorDialog } from "@/components/wiki/wiki-editor-dialog";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +15,11 @@ export default async function WikiIndexPage() {
   if (first) redirect(`/team/wiki/${first.slug}`);
 
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-10 text-center">
-      <p className="text-sm text-muted-foreground">
-        No wiki pages yet. Create the first one to get the team&apos;s
-        knowledge base started.
-      </p>
-      <WikiEditorDialog />
-    </div>
+    <EmptyState
+      icon={<BookOpen className="size-5" />}
+      title="No wiki pages yet"
+      description="Create the first one to get the team's knowledge base started."
+      action={<WikiEditorDialog />}
+    />
   );
 }

@@ -40,7 +40,7 @@ export default async function FounderLayout({
             type="submit"
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2 text-sidebar-foreground/80 hover:text-sidebar-accent-foreground"
+            className="w-full justify-start gap-2 text-sidebar-foreground/65 hover:bg-white/[0.06] hover:text-sidebar-foreground"
           >
             <Lock className="size-4" />
             Exit Founder Mode

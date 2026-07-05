@@ -16,12 +16,16 @@ export default async function WikiPage({
   if (!page) notFound();
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">{page.title}</h1>
+    <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          {page.title}
+        </h1>
         <WikiEditorDialog page={page} />
       </div>
-      <Markdown content={page.content} />
+      <div className="rounded-2xl border bg-card p-8 shadow-sm">
+        <Markdown content={page.content} />
+      </div>
     </div>
   );
 }

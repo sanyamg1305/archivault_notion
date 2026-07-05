@@ -39,7 +39,10 @@ export function Shell({
   const [open, setOpen] = useState(false);
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-1 p-3">
+    <nav className="flex flex-1 flex-col gap-0.5 px-3 py-4">
+      <span className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/35">
+        Menu
+      </span>
       {navItems.map((item) => {
         const active =
           pathname === item.href || pathname.startsWith(item.href + "/");
@@ -49,13 +52,20 @@ export function Shell({
             href={item.href}
             onClick={() => setOpen(false)}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
               active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+                ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
+                : "text-sidebar-foreground/65 hover:bg-white/[0.06] hover:text-sidebar-foreground"
             )}
           >
-            {item.icon}
+            <span
+              className={cn(
+                "flex size-4 shrink-0 items-center justify-center transition-colors",
+                active ? "text-primary-foreground" : "text-sidebar-foreground/45 group-hover:text-sidebar-foreground/80"
+              )}
+            >
+              {item.icon}
+            </span>
             {item.label}
           </Link>
         );
@@ -66,34 +76,44 @@ export function Shell({
   return (
     <div className="flex min-h-screen flex-1 bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
         <SidebarHeader sectionLabel={sectionLabel} accent={accent} />
         {nav}
-        {footer && <div className="border-t p-3">{footer}</div>}
+        {footer && <div className="border-t border-white/[0.06] p-3">{footer}</div>}
       </aside>
 
       {/* Mobile top bar */}
       <div className="flex flex-1 flex-col">
         <header className="flex items-center gap-3 border-b bg-sidebar px-4 py-3 text-sidebar-foreground md:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" />}>
+            <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" className="text-sidebar-foreground hover:bg-white/10 hover:text-sidebar-foreground" />}>
               <Menu className="size-5" />
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-64 bg-sidebar p-0 text-sidebar-foreground"
+              className="w-72 border-0 bg-sidebar p-0 text-sidebar-foreground"
             >
-              <SheetHeader className="border-b p-0">
+              <SheetHeader className="border-b border-white/[0.06] p-0">
                 <SheetTitle className="sr-only">{sectionLabel} navigation</SheetTitle>
                 <SidebarHeader sectionLabel={sectionLabel} accent={accent} />
               </SheetHeader>
               <div className="flex flex-1 flex-col">
                 {nav}
-                {footer && <div className="border-t p-3">{footer}</div>}
+                {footer && <div className="border-t border-white/[0.06] p-3">{footer}</div>}
               </div>
             </SheetContent>
           </Sheet>
-          <span className="text-sm font-semibold">{sectionLabel}</span>
+          <div className="flex items-center gap-2">
+            <div
+              className={cn(
+                "flex size-6 items-center justify-center rounded-md text-xs font-bold",
+                accent ? "bg-brand text-brand-foreground" : "bg-primary text-primary-foreground"
+              )}
+            >
+              A
+            </div>
+            <span className="text-sm font-semibold">{sectionLabel}</span>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto">{children}</main>
@@ -110,22 +130,18 @@ function SidebarHeader({
   accent: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b px-4 py-4">
+    <div className="flex items-center gap-3 px-5 py-6">
       <div
         className={cn(
-          "flex size-8 items-center justify-center rounded-md text-sm font-bold",
-          accent
-            ? "bg-brand text-brand-foreground"
-            : "bg-primary text-primary-foreground"
+          "flex size-9 items-center justify-center rounded-xl text-base font-bold shadow-sm",
+          accent ? "bg-brand text-brand-foreground shadow-brand/30" : "bg-primary text-primary-foreground shadow-primary/30"
         )}
       >
         A
       </div>
       <div className="flex flex-col leading-tight">
-        <span className="text-sm font-semibold">Archivault</span>
-        <span className="text-xs text-sidebar-foreground/60">
-          {sectionLabel}
-        </span>
+        <span className="text-sm font-semibold tracking-tight">Archivault</span>
+        <span className="text-xs text-sidebar-foreground/50">{sectionLabel}</span>
       </div>
     </div>
   );

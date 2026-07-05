@@ -37,14 +37,16 @@ export function NotesEditor({
 
   return (
     <div className="flex flex-col gap-2">
-      <Textarea
-        value={content}
-        onChange={(e) => handleChange(e.target.value)}
-        rows={20}
-        className="font-mono text-sm"
-        placeholder="Private notes only founders can see…"
-      />
-      <p className="text-xs text-muted-foreground">
+      <div className="rounded-2xl border bg-card p-2 shadow-sm">
+        <Textarea
+          value={content}
+          onChange={(e) => handleChange(e.target.value)}
+          rows={20}
+          className="resize-none border-0 font-mono text-sm shadow-none focus-visible:ring-0"
+          placeholder="Private notes only founders can see…"
+        />
+      </div>
+      <p className="px-1 text-xs text-muted-foreground">
         {state === "saving" ? "Saving…" : `Last saved ${updatedAt.toLocaleString()}`}
       </p>
     </div>

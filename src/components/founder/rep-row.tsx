@@ -70,7 +70,7 @@ export function RepRow({ rep }: { rep: RepSummary }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 border-b p-4 last:border-b-0 md:grid-cols-[1.3fr_0.7fr_0.7fr_1.6fr_1.3fr_auto] md:items-center">
+    <div className="grid grid-cols-1 gap-3 border-b px-5 py-4 transition-colors last:border-b-0 hover:bg-accent/30 md:grid-cols-[1.3fr_0.7fr_0.7fr_1.6fr_1.3fr_auto] md:items-center">
       <div>
         <Link
           href={`/founder/team-tracker/${encodeURIComponent(rep.repName)}`}
