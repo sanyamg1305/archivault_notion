@@ -49,3 +49,12 @@ export async function deleteWikiPage(id: string, slug: string) {
   revalidatePath(`/team/wiki/${slug}`);
   redirect("/team/wiki");
 }
+
+export async function reorderWikiPages(orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.wikiPage.update({ where: { id }, data: { order: index } })
+    )
+  );
+  revalidatePath("/team/wiki");
+}

@@ -53,3 +53,12 @@ export async function deleteFaqItem(id: string) {
   await prisma.faqItem.delete({ where: { id } });
   revalidatePath("/team/faq");
 }
+
+export async function reorderFaqItems(orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.faqItem.update({ where: { id }, data: { order: index } })
+    )
+  );
+  revalidatePath("/team/faq");
+}
