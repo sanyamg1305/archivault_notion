@@ -5,8 +5,8 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import {
   Dialog,
   DialogContent,
@@ -84,14 +84,8 @@ export function FaqEditorDialog({ item }: { item?: Item }) {
             <Input id="question" name="question" defaultValue={item?.question} required />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="answer">Answer (markdown)</Label>
-            <Textarea
-              id="answer"
-              name="answer"
-              rows={6}
-              defaultValue={item?.answer}
-              required
-            />
+            <Label>Answer</Label>
+            <RichTextEditor name="answer" defaultValue={item?.answer} placeholder="Write the answer…" />
           </div>
           <DialogFooter className="justify-between sm:justify-between">
             {mode === "edit" && item && (

@@ -6,8 +6,8 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import {
   Dialog,
   DialogContent,
@@ -92,13 +92,12 @@ export function WikiEditorDialog({ page }: { page?: Page }) {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="content">Content (markdown)</Label>
-            <Textarea
-              id="content"
+            <Label>Content</Label>
+            <RichTextEditor
               name="content"
-              rows={14}
-              className="font-mono text-sm"
               defaultValue={page?.content}
+              placeholder="Write the page content…"
+              minHeightClassName="min-h-64"
             />
           </div>
           <DialogFooter className="justify-between sm:justify-between">
