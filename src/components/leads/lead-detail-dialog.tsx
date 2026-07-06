@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ import {
   updateLeadRepName,
 } from "@/lib/leads-actions";
 import type { LeadStatus } from "@/generated/prisma/client";
+
+const UNASSIGNED = "__unassigned__";
 
 export type LeadDetail = {
   id: string;
@@ -60,6 +62,15 @@ export function LeadDetailDialog({
   const [saleValue, setSaleValue] = useState(lead.saleValue ?? "");
   const [repName, setRepName] = useState(lead.repName ?? "");
   const [pending, startTransition] = useTransition();
+
+  // Keep the lead's current rep selectable even if they've since been
+  // removed from the canonical rep list, so editing never silently
+  // clears a valid (if stale) assignment.
+  const repOptions = useMemo(() => {
+    const names = new Set(repNames ?? []);
+    if (lead.repName) names.add(lead.repName);
+    return Array.from(names);
+  }, [repNames, lead.repName]);
 
   function save() {
     startTransition(async () => {
@@ -136,20 +147,22 @@ export function LeadDetailDialog({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="repName">Rep</Label>
-            <Input
-              id="repName"
-              list="rep-names"
-              value={repName}
-              onChange={(e) => setRepName(e.target.value)}
-              placeholder="Who's working this lead?"
-            />
-            {repNames && (
-              <datalist id="rep-names">
-                {repNames.map((name) => (
-                  <option key={name} value={name} />
+            <Select
+              value={repName || UNASSIGNED}
+              onValueChange={(v) => v && setRepName(v === UNASSIGNED ? "" : v)}
+            >
+              <SelectTrigger id="repName" className="w-full">
+                <SelectValue placeholder="Who's working this lead?" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
+                {repOptions.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
                 ))}
-              </datalist>
-            )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-col gap-2">

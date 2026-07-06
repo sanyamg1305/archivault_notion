@@ -15,6 +15,13 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createLead } from "@/lib/leads-actions";
 
 export function QuickAddLeadDialog({ repNames }: { repNames?: string[] }) {
@@ -60,19 +67,18 @@ export function QuickAddLeadDialog({ repNames }: { repNames?: string[] }) {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="repName">Rep</Label>
-            <Input
-              id="repName"
-              name="repName"
-              list="rep-names"
-              placeholder="Who's working this lead?"
-            />
-            {repNames && (
-              <datalist id="rep-names">
-                {repNames.map((name) => (
-                  <option key={name} value={name} />
+            <Select name="repName">
+              <SelectTrigger id="repName" className="w-full">
+                <SelectValue placeholder="Who's working this lead?" />
+              </SelectTrigger>
+              <SelectContent>
+                {repNames?.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
                 ))}
-              </datalist>
-            )}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="notes">Notes</Label>
