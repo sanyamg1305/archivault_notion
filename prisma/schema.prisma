@@ -99,3 +99,15 @@ model FaqItem {
 
   @@map("faq_items")
 }
+
+// Tracks failed founder-passphrase attempts per IP so a lockout can be
+// enforced after repeated wrong guesses. Not tied to any account — just a
+// brute-force guard on the one shared passphrase.
+model PassphraseAttempt {
+  ip             String    @id
+  count          Int       @default(0)
+  firstAttemptAt DateTime  @default(now())
+  lockedUntil    DateTime?
+
+  @@map("passphrase_attempts")
+}

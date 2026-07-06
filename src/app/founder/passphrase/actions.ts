@@ -1,10 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import {
-  verifyFounderPassphrase,
-  setFounderUnlockCookie,
-} from "@/lib/founder-passphrase";
+import { checkFounderPassphrase, setFounderUnlockCookie } from "@/lib/founder-passphrase";
 
 export type PassphraseState = { error?: string } | undefined;
 
@@ -13,9 +10,15 @@ export async function unlockFounderMode(
   formData: FormData
 ): Promise<PassphraseState> {
   const passphrase = String(formData.get("passphrase") ?? "");
-  const ok = await verifyFounderPassphrase(passphrase);
+  const result = await checkFounderPassphrase(passphrase);
 
-  if (!ok) {
+  if (!result.ok) {
+    if (result.locked) {
+      const unit = result.retryAfterMinutes === 1 ? "minute" : "minutes";
+      return {
+        error: `Too many incorrect attempts. Try again in ${result.retryAfterMinutes} ${unit}.`,
+      };
+    }
     return { error: "Incorrect passphrase." };
   }
 
